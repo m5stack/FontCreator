@@ -287,39 +287,89 @@ class Frame_NewFont(NewFont):
         self.parent.Enable()
         self.Destroy()
 
-    def ButtonOK_Cb( self, event ):
-        global font_name
+    def check_unicode_range(self, unicode_start, unicode_end):
         global list_ctrl_id
         global font_dict
+
+        if unicode_start > unicode_end or unicode_start < 0 or unicode_end > 0xFFFF:
+            raise Exception('Invalid Unicode Block: start bigger than end')
+
+        unicode_block_list = []
+        item = -1
+        while True:
+            item = self.parent.listctrl_fontinfo.GetNextItem(item)
+            if item == -1:
+                break
+            unicode_block_list.append((int(self.parent.listctrl_fontinfo.GetItemText(item, 1), 16),\
+                                       int(self.parent.listctrl_fontinfo.GetItemText(item, 2), 16)))
+
+        for block in unicode_block_list:
+            if unicode_start >= block[0] and unicode_start <= block[1]:
+                raise Exception('Conflict Unicode Block: start in other block (0x%04X - 0x%04X)' %(block[0], block[1]))
+            if unicode_end >= block[0] and unicode_end <= block[1]:
+                raise Exception('Conflict Unicode Block: end in other block (0x%04X - 0x%04X)' %(block[0], block[1]))
+            if block[0] >= unicode_start and block[0] <= unicode_end:
+                raise Exception('Conflict Unicode Block: other block in this block (0x%04X)' %block[0])
+            if block[1] >= unicode_start and block[1] <= unicode_end:
+                raise Exception('Conflict Unicode Block: other block in this block (0x%04X)' %block[1])
+
+        self.parent.listctrl_fontinfo.Append([font_name, '0x%04X' %unicode_start, '0x%04X' %unicode_end, '%d' %list_ctrl_id])
+        font_dict['%d' %list_ctrl_id] = self.fontPicker.GetSelectedFont()
+        list_ctrl_id += 1
+
+    def ButtonOK_Cb( self, event ):
+        global font_name
+        # global list_ctrl_id
+        # global font_dict
+
         try:
-            unicode_start = int(self.textbox_unicode_start.GetValue(), 16)
-            unicode_end = int(self.textbox_unicode_end.GetValue(), 16)
-            if unicode_start > unicode_end or unicode_start < 0 or unicode_end > 0xFFFF:
-                raise Exception('Invalid Unicode Block: start bigger than end')
-
-            unicode_block_list = []
-            item = -1
-            while True:
-                item = self.parent.listctrl_fontinfo.GetNextItem(item)
-                if item == -1:
-                    break
-                unicode_block_list.append((int(self.parent.listctrl_fontinfo.GetItemText(item, 1), 16),\
-                                           int(self.parent.listctrl_fontinfo.GetItemText(item, 2), 16)))
-
-            for block in unicode_block_list:
-                if unicode_start >= block[0] and unicode_start <= block[1]:
-                    raise Exception('Conflict Unicode Block: start in other block (0x%04X - 0x%04X)' %(block[0], block[1]))
-                if unicode_end >= block[0] and unicode_end <= block[1]:
-                    raise Exception('Conflict Unicode Block: end in other block (0x%04X - 0x%04X)' %(block[0], block[1]))
-                if block[0] >= unicode_start and block[0] <= unicode_end:
-                    raise Exception('Conflict Unicode Block: other block in this block (0x%04X)' %block[0])
-                if block[1] >= unicode_start and block[1] <= unicode_end:
-                    raise Exception('Conflict Unicode Block: other block in this block (0x%04X)' %block[1])
             if len(font_name) <= 0:
                 raise Exception('Invalid Font')
-            self.parent.listctrl_fontinfo.Append([font_name, '0x%04X' %unicode_start, '0x%04X' %unicode_end, '%d' %list_ctrl_id])
-            font_dict['%d' %list_ctrl_id] = self.fontPicker.GetSelectedFont()
-            list_ctrl_id += 1
+
+            checkboxs = [
+                'checkbox_0020_002f',
+                'checkbox_0030_0039',
+                'checkbox_003a_0040',
+                'checkbox_0041_005a',
+                'checkbox_005b_0060',
+                'checkbox_0061_007a',
+                'checkbox_007b_007e',
+            ]
+
+            checked = 0
+            for checkbox_name in checkboxs:
+                checkbox = getattr(self, checkbox_name)
+                if checkbox.GetValue():
+                    checked += 1
+                    unicode_range = checkbox_name.replace('checkbox_', '').split('_')
+                    unicode_start = int(f'0x{unicode_range[0]}', 16)
+                    unicode_end = int(f'0x{unicode_range[1]}', 16)
+                    self.check_unicode_range(unicode_start, unicode_end)
+
+            if not checked > 0 and not self.checkbox_custom.GetValue() and not self.checkbox_parsing.GetValue():
+                raise Exception('Please choose least one option')
+
+            if self.checkbox_custom.GetValue():
+                unicode_start = int(self.textbox_unicode_start.GetValue(), 16)
+                unicode_end = int(self.textbox_unicode_end.GetValue(), 16)
+                self.check_unicode_range(unicode_start, unicode_end)
+
+            if self.checkbox_parsing.GetValue():
+                characters = self.textbox_characters.GetValue()
+                if not characters:
+                    raise Exception('Please input least one character')
+                else:
+                    word_list = []
+
+                    for c in characters:
+                        word_list.append(c)
+
+                    word_list = list(set(word_list))
+
+                    for t in word_list:
+                        code = int(hex(ord(t)), 16)
+                        self.check_unicode_range(code, code)
+
             self.FrameOnClose_Cb(event)
         except Exception as err:
             MessageDialog(self, wx.LOG_Warning, str(err))

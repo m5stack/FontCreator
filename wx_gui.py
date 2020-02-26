@@ -156,14 +156,82 @@ class NewFont ( wx.Frame ):
 
 		bSizer9.Add( fgSizer3, 1, wx.EXPAND, 5 )
 
+		fgSizer21 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer21.SetFlexibleDirection( wx.BOTH )
+		fgSizer21.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_0020_002f = wx.CheckBox( self, wx.ID_ANY, u" !\"#$%&'()*+,-./", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer21.Add( self.checkbox_0020_002f, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer21, 1, wx.EXPAND, 5 )
+
+		fgSizer211 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer211.SetFlexibleDirection( wx.BOTH )
+		fgSizer211.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_0030_0039 = wx.CheckBox( self, wx.ID_ANY, u"0123456789", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer211.Add( self.checkbox_0030_0039, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer211, 1, wx.EXPAND, 5 )
+
+		fgSizer2111 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer2111.SetFlexibleDirection( wx.BOTH )
+		fgSizer2111.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_003a_0040 = wx.CheckBox( self, wx.ID_ANY, u":;<=>?@", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer2111.Add( self.checkbox_003a_0040, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer2111, 1, wx.EXPAND, 5 )
+
+		fgSizer21111 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer21111.SetFlexibleDirection( wx.BOTH )
+		fgSizer21111.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_0041_005a = wx.CheckBox( self, wx.ID_ANY, u"ABCDEFGHIJKLMNOPQRSTUVWXYZ", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer21111.Add( self.checkbox_0041_005a, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer21111, 1, wx.EXPAND, 5 )
+
+		fgSizer21112 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer21112.SetFlexibleDirection( wx.BOTH )
+		fgSizer21112.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_005b_0060 = wx.CheckBox( self, wx.ID_ANY, u"[]^_`", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer21112.Add( self.checkbox_005b_0060, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer21112, 1, wx.EXPAND, 5 )
+
+		fgSizer211121 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer211121.SetFlexibleDirection( wx.BOTH )
+		fgSizer211121.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_0061_007a = wx.CheckBox( self, wx.ID_ANY, u"abcdefghijklmnopqrstuvwxyz", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer211121.Add( self.checkbox_0061_007a, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer211121, 1, wx.EXPAND, 5 )
+
+		fgSizer2111211 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer2111211.SetFlexibleDirection( wx.BOTH )
+		fgSizer2111211.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_007b_007e = wx.CheckBox( self, wx.ID_ANY, u"{|}~", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer2111211.Add( self.checkbox_007b_007e, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer2111211, 1, wx.EXPAND, 5 )
+
 		fgSizer2 = wx.FlexGridSizer( 0, 4, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
 		fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
-		self.m_staticText8 = wx.StaticText( self, wx.ID_ANY, u"Unicode Block", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText8.Wrap( -1 )
-
-		fgSizer2.Add( self.m_staticText8, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.checkbox_custom = wx.CheckBox( self, wx.ID_ANY, u"Custom Unicode Block", wx.DefaultPosition, wx.Size( -1,28 ), 0 )
+		fgSizer2.Add( self.checkbox_custom, 0, wx.ALL, 5 )
 
 		self.textbox_unicode_start = wx.TextCtrl( self, wx.ID_ANY, u"0x0000", wx.DefaultPosition, wx.Size( 60,-1 ), 0 )
 		self.textbox_unicode_start.SetMaxLength( 6 )
@@ -180,6 +248,19 @@ class NewFont ( wx.Frame ):
 
 
 		bSizer9.Add( fgSizer2, 1, wx.EXPAND, 5 )
+
+		fgSizer22 = wx.FlexGridSizer( 0, 4, 0, 0 )
+		fgSizer22.SetFlexibleDirection( wx.BOTH )
+		fgSizer22.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.checkbox_parsing = wx.CheckBox( self, wx.ID_ANY, u"Parsing character", wx.DefaultPosition, wx.Size( 125,28 ), 0 )
+		fgSizer22.Add( self.checkbox_parsing, 0, wx.ALL, 5 )
+
+		self.textbox_characters = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.Point( -1,-1 ), wx.DefaultSize, 0 )
+		fgSizer22.Add( self.textbox_characters, 0, wx.ALL, 5 )
+
+
+		bSizer9.Add( fgSizer22, 1, wx.EXPAND, 5 )
 
 
 		fgSizer4.Add( bSizer9, 1, wx.EXPAND, 5 )
@@ -235,8 +316,8 @@ class NewFont ( wx.Frame ):
 
 class Gerenate ( wx.Frame ):
 
-	def __init__( self, parent, font_size ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u" ", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+	def __init__( self, parent ):
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Generating", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		self.SetForegroundColour( wx.Colour( 0, 0, 0 ) )
@@ -245,7 +326,7 @@ class Gerenate ( wx.Frame ):
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 
 
-		bSizer7.Add( ( 180, font_size), 1, wx.EXPAND, 5 )
+		bSizer7.Add( ( 0, 0), 1, wx.EXPAND, 5 )
 
 		self.m_staticText8 = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 0,0 ), 0 )
 		self.m_staticText8.Wrap( -1 )
