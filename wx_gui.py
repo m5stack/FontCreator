@@ -140,21 +140,66 @@ class NewFont ( wx.Frame ):
 
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 
-		fgSizer3 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer3.SetFlexibleDirection( wx.BOTH )
-		fgSizer3.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		fgSizer7 = wx.FlexGridSizer( 0, 5, 0, 0 )
+		fgSizer7.SetFlexibleDirection( wx.BOTH )
+		fgSizer7.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
-		self.fontPicker = wx.FontPickerCtrl( self, wx.ID_ANY, wx.Font( 24, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Arial" ), wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer101 = wx.BoxSizer( wx.VERTICAL )
+
+		self.fontPicker = wx.FontPickerCtrl( self, wx.ID_ANY, wx.Font( 24, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Arial" ), wx.DefaultPosition, wx.Size( 120,-1 ), wx.FNTP_FONTDESC_AS_LABEL )
 		self.fontPicker.SetMaxPointSize( 100 )
-		fgSizer3.Add( self.fontPicker, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer101.Add( self.fontPicker, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.StaticText_FontFileName = wx.StaticText( self, wx.ID_ANY, u"Please Select Font", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.StaticText_FontFileName.Wrap( -1 )
+		fgSizer8 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer8.SetFlexibleDirection( wx.BOTH )
+		fgSizer8.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
-		fgSizer3.Add( self.StaticText_FontFileName, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.Textctrl_PreviewUnicode = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 60,-1 ), 0 )
+		fgSizer8.Add( self.Textctrl_PreviewUnicode, 0, wx.ALL, 5 )
+
+		self.Text_Preview = wx.StaticText( self, wx.ID_ANY, u"X", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.Text_Preview.Wrap( -1 )
+
+		fgSizer8.Add( self.Text_Preview, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
-		bSizer9.Add( fgSizer3, 1, wx.EXPAND, 5 )
+		bSizer101.Add( fgSizer8, 1, wx.EXPAND, 5 )
+
+		self.Text_OffsetUD = wx.StaticText( self, wx.ID_ANY, u"Offset UD = 0", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.Text_OffsetUD.Wrap( -1 )
+
+		bSizer101.Add( self.Text_OffsetUD, 0, wx.ALL, 5 )
+
+		self.Text_OffsetLR = wx.StaticText( self, wx.ID_ANY, u"Offset LR  = 0", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.Text_OffsetLR.Wrap( -1 )
+
+		bSizer101.Add( self.Text_OffsetLR, 0, wx.ALL, 5 )
+
+
+		fgSizer7.Add( bSizer101, 1, wx.EXPAND, 5 )
+
+		self.Button_Left = wx.Button( self, wx.ID_ANY, u"←", wx.DefaultPosition, wx.Size( 20,40 ), 0 )
+		fgSizer7.Add( self.Button_Left, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		bSizer8 = wx.BoxSizer( wx.VERTICAL )
+
+		self.Button_Up = wx.Button( self, wx.ID_ANY, u"↑", wx.DefaultPosition, wx.Size( 40,20 ), 0 )
+		bSizer8.Add( self.Button_Up, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+		self.m_bitmap3 = wx.StaticBitmap( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.Size( 64,64 ), 0 )
+		bSizer8.Add( self.m_bitmap3, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+		self.Button_Down = wx.Button( self, wx.ID_ANY, u"↓", wx.DefaultPosition, wx.Size( 40,20 ), 0 )
+		bSizer8.Add( self.Button_Down, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+
+
+		fgSizer7.Add( bSizer8, 0, 0, 5 )
+
+		self.Button_Right = wx.Button( self, wx.ID_ANY, u"→", wx.DefaultPosition, wx.Size( 20,40 ), 0 )
+		fgSizer7.Add( self.Button_Right, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+
+		bSizer9.Add( fgSizer7, 0, 0, 5 )
 
 		fgSizer2 = wx.FlexGridSizer( 0, 4, 0, 0 )
 		fgSizer2.SetFlexibleDirection( wx.BOTH )
@@ -208,6 +253,11 @@ class NewFont ( wx.Frame ):
 		# Connect Events
 		self.Bind( wx.EVT_CLOSE, self.FrameOnClose_Cb )
 		self.fontPicker.Bind( wx.EVT_FONTPICKER_CHANGED, self.OnFontChanged_Cb )
+		self.Textctrl_PreviewUnicode.Bind( wx.EVT_TEXT, self.Textctrl_PreviewUnicode_Ontext_CB )
+		self.Button_Left.Bind( wx.EVT_BUTTON, self.Button_Left_CB )
+		self.Button_Up.Bind( wx.EVT_BUTTON, self.Button_Up_CB )
+		self.Button_Down.Bind( wx.EVT_BUTTON, self.Button_Down_CB )
+		self.Button_Right.Bind( wx.EVT_BUTTON, self.Button_Right_CB )
 		self.m_button8.Bind( wx.EVT_BUTTON, self.ButtonOK_Cb )
 		self.m_button9.Bind( wx.EVT_BUTTON, self.ButtonCancel_Cb )
 
@@ -220,6 +270,21 @@ class NewFont ( wx.Frame ):
 		event.Skip()
 
 	def OnFontChanged_Cb( self, event ):
+		event.Skip()
+
+	def Textctrl_PreviewUnicode_Ontext_CB( self, event ):
+		event.Skip()
+
+	def Button_Left_CB( self, event ):
+		event.Skip()
+
+	def Button_Up_CB( self, event ):
+		event.Skip()
+
+	def Button_Down_CB( self, event ):
+		event.Skip()
+
+	def Button_Right_CB( self, event ):
 		event.Skip()
 
 	def ButtonOK_Cb( self, event ):
@@ -235,30 +300,29 @@ class NewFont ( wx.Frame ):
 
 class Gerenate ( wx.Frame ):
 
-	def __init__( self, parent, font_size ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u" ", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+	def __init__( self, parent ):
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Generating", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.Size( -1,-1 ) )
 		self.SetForegroundColour( wx.Colour( 0, 0, 0 ) )
 		self.SetBackgroundColour( wx.Colour( 255, 255, 255 ) )
 
-		bSizer7 = wx.BoxSizer( wx.VERTICAL )
+		fgSizer9 = wx.FlexGridSizer( 0, 2, 0, 0 )
+		fgSizer9.SetFlexibleDirection( wx.BOTH )
+		fgSizer9.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.Bitmap_Render = wx.StaticBitmap( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.Size( 64,64 ), 0 )
+		fgSizer9.Add( self.Bitmap_Render, 0, wx.ALL, 5 )
+
+		self.m_staticText11 = wx.StaticText( self, wx.ID_ANY, u"MyLabel", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText11.Wrap( -1 )
+
+		fgSizer9.Add( self.m_staticText11, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
-		bSizer7.Add( ( 180, font_size), 1, wx.EXPAND, 5 )
-
-		self.m_staticText8 = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 0,0 ), 0 )
-		self.m_staticText8.Wrap( -1 )
-
-		self.m_staticText8.SetForegroundColour( wx.Colour( 0, 0, 0 ) )
-		self.m_staticText8.SetBackgroundColour( wx.Colour( 255, 255, 255 ) )
-
-		bSizer7.Add( self.m_staticText8, 0, wx.ALL, 5 )
-
-
-		self.SetSizer( bSizer7 )
+		self.SetSizer( fgSizer9 )
 		self.Layout()
-		bSizer7.Fit( self )
+		fgSizer9.Fit( self )
 
 		self.Centre( wx.BOTH )
 

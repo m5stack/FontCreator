@@ -5,7 +5,6 @@ import re
 import math
 #import Gerenator
 
-font_name = ''
 font_dict = {}
 list_ctrl_id = 0
 
@@ -25,35 +24,43 @@ def MessageDialog(self, level, msg):
 
 class Frame_Gerenate(Gerenate):
     def __init__(self, parent, font_size):
-        super(Frame_Gerenate, self).__init__(parent, font_size)
-        self.clientdc = wx.ClientDC(self)
-        self.dc = wx.BufferedDC(dc = self.clientdc, area = wx.Size(font_size, font_size), style=wx.BUFFER_CLIENT_AREA)
+        super(Frame_Gerenate, self).__init__(parent)
+        self.dc = wx.MemoryDC()
         self.parent = parent
         self.parent.Disable()
-        self.brush = wx.Brush("white")  
-        self.dc.SetBackground(self.brush)  
+        self.bmp = wx.Bitmap(64, 64, depth=1)
         #font_dict[self.listctrl_fontinfo.GetItemText(0, 3)]
 
     def OnClose_Cb( self, event):
         self.parent.Enable()
         self.Destroy()
 
-    def RenderBitmap(self, unicode, font_size):
+    def RenderBitmap(self, unicode, font_size, ud, lr):
+        self.dc.SelectObject(self.bmp)
         self.dc.Clear()
-        self.dc.DrawText(chr(unicode), 0, 0)
+
+        base_offset = (64 - font_size) // 2
+        ox = base_offset + lr
+        oy = base_offset + ud
+        self.dc.DrawText(chr(unicode), ox, oy)
         #print('%04X' %unicode)
         #self.dc.DrawText('%04X' %unicode, font_size, 0)
 
         bitmap = []
-        for y in range(0, font_size):
+        for y in range(base_offset, base_offset + font_size):
             line = ''
-            for x in range(0, font_size):
+            for x in range(base_offset, base_offset + font_size):
                 color = self.dc.GetPixel(x, y)
-                if color.blue < 200 or color.red < 200 or color.green < 200:
+                if color.blue != 255:
                     line += '1'
                 else:
                     line += '0'
             bitmap.append(line)
+
+        self.dc.SelectObject(wx.NullBitmap)
+        self.Bitmap_Render.SetBitmap(self.bmp)
+        self.Bitmap_Render.Update()
+        self.m_staticText11.SetLabel('0x%04X' %unicode)
 
         return bitmap
     
@@ -109,6 +116,11 @@ class Frame_Gerenate(Gerenate):
             return [[], [], font_size/2, 0, font_size/2, 0, 0, unicode]
         if width == 0 or height == 0:
             return [[], [], 0, 0, 0, 0, 0, unicode]
+
+        for x in valid_bitmap:
+            print(x.replace('0', '  ').replace('1', '@@'))
+        print(width*2, height)
+
         return [hex_bitmap, valid_bitmap, width, height, width+font_spacing*2, font_spacing, -y_offset, unicode]
             
     def Generate(self, blocks, font_spacing, font_size, filename):
@@ -138,7 +150,7 @@ class Frame_Gerenate(Gerenate):
             for unicode in range(block[0], block[1] + 1):
                 self.parent.button_gen.SetLabelText('%04X' %unicode)
                 base += 1
-                glyph = self.GetBitmapAttribute(self.RenderBitmap(unicode, font_size), unicode, font_spacing, font_size)
+                glyph = self.GetBitmapAttribute(self.RenderBitmap(unicode, font_size, block[3], block[4]), unicode, font_spacing, font_size)
                 gfxglyph_buffer.append('{0x%X, %d, %d, %d, %d, %d}, /* 0x%04X */\n' %(bitmap_offset, glyph[2], glyph[3], glyph[4], glyph[5], glyph[6], glyph[7]))
                 size += 7
                 bitmap_offset += len(glyph[0])
@@ -199,8 +211,7 @@ class Frame_MainFrame(MainFrame):
         self.listctrl_fontinfo.InsertColumn(0, 'Font', width = 100 )
         self.listctrl_fontinfo.InsertColumn(1, 'Unicode Start', width = 100)
         self.listctrl_fontinfo.InsertColumn(2, 'Unicode End', width = 100)
-        self.listctrl_fontinfo.InsertColumn(3, 'ID', width = 0)
-        self.dc = wx.ClientDC(self)
+        self.unicode_block = []
 
     def OnListItemSelect_Cb( self, event ):
         self.fontinfo_onselect.clear()
@@ -210,29 +221,17 @@ class Frame_MainFrame(MainFrame):
             item = self.listctrl_fontinfo.GetNextSelected(item)
 
     def ButtonAdd_Cb( self, event ):
-        font_name = ''
         frame = Frame_NewFont(parent=self)
         frame.Show()
 
     def ButtonDelete_Cb( self, event ):
         for item in self.fontinfo_onselect:
-            font_dict.pop(self.listctrl_fontinfo.GetItemText(item, 3))
             self.listctrl_fontinfo.DeleteItem(item)
 
     def Gerenate_Cb( self, event ):  
-        global unicode_block_list      
 
-        unicode_block_list = []
         try:
-            item = -1
-            while True:
-                item = self.listctrl_fontinfo.GetNextItem(item)
-                if item == -1:
-                    break
-                unicode_block_list.append((int(self.listctrl_fontinfo.GetItemText(item, 1), 16),\
-                                        int(self.listctrl_fontinfo.GetItemText(item, 2), 16), \
-                                        font_dict[self.listctrl_fontinfo.GetItemText(item, 3)] ))
-            if len(unicode_block_list) == 0:
+            if len(self.unicode_block) == 0:
                 raise Exception
         except:
             MessageDialog(self, wx.LOG_Warning, 'No valid font and unicode block')
@@ -264,8 +263,8 @@ class Frame_MainFrame(MainFrame):
         self.Disable()
         self.button_gen.SetLabelText('Generating...')
         frame = Frame_Gerenate(parent=self, font_size = font_size)
-        #frame.Show()
-        flash_size = frame.Generate(unicode_block_list, font_spacing, font_size, filename)
+        frame.Show()
+        flash_size = frame.Generate(self.unicode_block, font_spacing, font_size, filename)
         MessageDialog(self, wx.LOG_Message, '%s Generated, Approx. %.1f KiB' %(filename, flash_size/1024.0))
         self.Enable()
         self.button_gen.SetLabelText('Gerenate')
@@ -278,20 +277,98 @@ class Frame_NewFont(NewFont):
         self.parent = parent
         self.parent.Disable()
 
+        self.fontsize = 24
+        try:
+            self.fontsize = int(self.parent.InputBox_Size.GetValue())
+            if self.fontsize <= 3 or self.fontsize >= 99:
+                raise Exception
+        except:
+            MessageDialog(self, wx.LOG_Warning, 'Invalid size')
+            self.fontsize = 24
+
+        self.offset_UD = 0
+        self.offset_LR = 0
+        self.preview_unicode = 0x554A
+        self.preview_font = self.fontPicker.GetSelectedFont()
+        self.font_name = self.preview_font.GetFaceName()
+        self.Textctrl_PreviewUnicode.SetValue('0x%04X' %(self.preview_unicode))
+        self.Text_Preview.SetLabel(chr(self.preview_unicode))
+        self.Render_Preview()
+
+    def Render_Preview(self):
+        unicode = self.preview_unicode
+        font = self.preview_font
+        UD = self.offset_UD
+        LR = self.offset_LR
+        font.SetPixelSize(wx.Size(0, self.fontsize))
+
+        bmp = wx.Bitmap(64, 64)
+        dc = wx.MemoryDC()
+        dc.SelectObject(bmp)
+        dc.Clear()
+
+        dc.SetFont(font)
+        base_offset = (64 - self.fontsize) // 2
+        x = base_offset + LR
+        y = base_offset + UD
+        dc.DrawText(chr(unicode), x, y)
+
+        xy = base_offset // 2
+        wh = 64 - base_offset
+        dc.SetPen(wx.Pen("grey",style=wx.SOLID, width = base_offset))
+        dc.SetBrush(wx.Brush("grey", wx.TRANSPARENT))
+        dc.DrawRectangle(xy, xy, wh, wh)
+
+        dc.SelectObject(wx.NullBitmap)
+        
+        self.m_bitmap3.SetBitmap(bmp)
+        self.m_bitmap3.Update()
+
+    def Textctrl_PreviewUnicode_Ontext_CB( self, event ):
+        try:
+            unicode = int(self.Textctrl_PreviewUnicode.GetValue(), 16)
+            if unicode > 0 and unicode < 0xFFFF:
+                self.preview_unicode = unicode
+            self.Text_Preview.SetLabel(chr(unicode))
+            self.Render_Preview()
+        except:
+            pass
+    
+    def Button_Left_CB( self, event ):
+        self.offset_LR -= 1
+        self.Text_OffsetLR.SetLabel('Offset LR  = %d' %self.offset_LR)
+        self.Render_Preview()
+
+    def Button_Up_CB( self, event ):
+        self.offset_UD -= 1
+        self.Text_OffsetUD.SetLabel('Offset UD = %d' %self.offset_UD)
+        self.Render_Preview()
+
+    def Button_Down_CB( self, event ):
+        self.offset_UD += 1
+        self.Text_OffsetUD.SetLabel('Offset UD = %d' %self.offset_UD)
+        self.Render_Preview()
+
+    def Button_Right_CB( self, event ):
+        self.offset_LR += 1
+        self.Text_OffsetLR.SetLabel('Offset LR  = %d' %self.offset_LR)
+        self.Render_Preview()
+
     def OnFontChanged_Cb( self, event ):
-        global font_name
-        font_name = self.fontPicker.GetSelectedFont().GetFaceName()
-        self.StaticText_FontFileName.SetLabelText(font_name[0:20])
+        self.font_name = self.fontPicker.GetSelectedFont().GetFaceName()
+        self.offset_LR = 0
+        self.offset_UD = 0
+        self.preview_font = self.fontPicker.GetSelectedFont()
+        self.Text_Preview.SetLabel(chr(self.preview_unicode))
+        self.Render_Preview()
 
     def FrameOnClose_Cb( self, event ):
         self.parent.Enable()
         self.Destroy()
 
     def ButtonOK_Cb( self, event ):
-        global font_name
-        global list_ctrl_id
-        global font_dict
         try:
+            self.parent.InputBox_Size.Disable()
             unicode_start = int(self.textbox_unicode_start.GetValue(), 16)
             unicode_end = int(self.textbox_unicode_end.GetValue(), 16)
             if unicode_start > unicode_end or unicode_start < 0 or unicode_end > 0xFFFF:
@@ -315,11 +392,10 @@ class Frame_NewFont(NewFont):
                     raise Exception('Conflict Unicode Block: other block in this block (0x%04X)' %block[0])
                 if block[1] >= unicode_start and block[1] <= unicode_end:
                     raise Exception('Conflict Unicode Block: other block in this block (0x%04X)' %block[1])
-            if len(font_name) <= 0:
-                raise Exception('Invalid Font')
-            self.parent.listctrl_fontinfo.Append([font_name, '0x%04X' %unicode_start, '0x%04X' %unicode_end, '%d' %list_ctrl_id])
-            font_dict['%d' %list_ctrl_id] = self.fontPicker.GetSelectedFont()
-            list_ctrl_id += 1
+            if len(self.font_name) <= 0:
+                raise Exception('Invalid Font: %s' %self.font_name)
+            self.parent.listctrl_fontinfo.Append([self.font_name, '0x%04X' %unicode_start, '0x%04X' %unicode_end])
+            self.parent.unicode_block.append([unicode_start, unicode_end, self.preview_font, self.offset_UD, self.offset_LR])
             self.FrameOnClose_Cb(event)
         except Exception as err:
             MessageDialog(self, wx.LOG_Warning, str(err))
