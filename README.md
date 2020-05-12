@@ -5,6 +5,7 @@ Support for multiple unicode blocks with different fonts.
 ![software window](https://github.com/m5stack/FontCreator/blob/master/assets/main.png)
 
 You can adjust the offset in preview window.
+
 ![new font window](https://github.com/m5stack/FontCreator/blob/master/assets/newfont.png)
 
 usage:
