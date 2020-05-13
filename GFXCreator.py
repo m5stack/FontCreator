@@ -3,6 +3,8 @@ import wx
 import wx.xrc
 import re
 import math
+import time
+import json
 #import Gerenator
 
 font_dict = {}
@@ -42,7 +44,7 @@ class Frame_Gerenate(Gerenate):
         base_offset = (64 - font_size) // 2
         ox = base_offset + lr
         oy = base_offset + ud
-        self.dc.DrawText(chr(unicode), ox, oy)
+        x = self.dc.DrawText(chr(unicode), ox, oy)
         #print('%04X' %unicode)
         #self.dc.DrawText('%04X' %unicode, font_size, 0)
 
@@ -116,10 +118,6 @@ class Frame_Gerenate(Gerenate):
             return [[], [], font_size/2, 0, font_size/2, 0, 0, unicode]
         if width == 0 or height == 0:
             return [[], [], 0, 0, 0, 0, 0, unicode]
-
-        for x in valid_bitmap:
-            print(x.replace('0', '  ').replace('1', '@@'))
-        print(width*2, height)
 
         return [hex_bitmap, valid_bitmap, width, height, width+font_spacing*2, font_spacing, -y_offset, unicode]
             
@@ -225,11 +223,61 @@ class Frame_MainFrame(MainFrame):
         frame.Show()
 
     def ButtonDelete_Cb( self, event ):
+        dellist = []
         for item in self.fontinfo_onselect:
+            start = int(self.listctrl_fontinfo.GetItemText(item, 1), 16)
+            dellist.append(start)
+            # end = int(self.listctrl_fontinfo.GetItemText(item, 2))
             self.listctrl_fontinfo.DeleteItem(item)
+        
+        for d in dellist:
+            for x in self.unicode_block:
+                if(x[0] == d):
+                    self.unicode_block.remove(x)
 
-    def Gerenate_Cb( self, event ):  
+    def SaveBlock(self):
+        data = {}
+        for block in self.unicode_block:
+            data.setdefault('0x%04X-0x%04X' %(block[0], block[1]), [block[2].GetNativeFontInfoDesc(), block[3], block[4]])
 
+        json_str = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+        fstr = './%s.json' %str(time.strftime("%Y%m%d_%H%M%S", time.localtime()))
+        f = open(fstr, 'w')
+        f.write(json_str)
+        f.close()
+        return fstr
+
+    def Button_Save_CB( self, event ):
+        fstr = self.SaveBlock()
+        MessageDialog(self, wx.LOG_Message, 'Success saved as %s' %fstr)
+
+    def FilePicker_Load_CB( self, event ):
+        try:
+            fpath = self.FilePicker_Load.GetPath()
+            f = open(fpath, 'r')
+            data = json.loads(f.read())
+            f.close()
+        except:
+            MessageDialog(self, wx.LOG_Error, 'Can not open file %s' %fpath)
+
+        try:
+            self.unicode_block = []
+            self.listctrl_fontinfo.DeleteAllItems()
+            keys = data.keys()
+            for key in keys:
+                payload = key.split('-')
+                start = int(payload[0], 16)
+                end = int(payload[1], 16)
+                font = wx.Font(data[key][0])
+                ud = data[key][1]
+                lr = data[key][2]
+                self.unicode_block.append([start, end, font, ud, lr])
+                self.listctrl_fontinfo.Append([font.GetFaceName(), payload[0], payload[1]])
+        except:
+            MessageDialog(self, wx.LOG_Error, 'Invalid configuration file')
+
+    def Gerenate_Cb( self, event ):
+        self.SaveBlock()
         try:
             if len(self.unicode_block) == 0:
                 raise Exception

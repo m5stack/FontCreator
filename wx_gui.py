@@ -17,7 +17,7 @@ import wx.xrc
 class MainFrame ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"M5-FontCreator", pos = wx.DefaultPosition, size = wx.Size( -1,-1 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"M5-FontCreator", pos = wx.DefaultPosition, size = wx.Size( 466,302 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		self.SetBackgroundColour( wx.Colour( 255, 255, 255 ) )
@@ -30,13 +30,24 @@ class MainFrame ( wx.Frame ):
 
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 
-		self.listctrl_fontinfo = wx.ListCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,220 ), wx.LC_HRULES|wx.LC_REPORT|wx.LC_SORT_ASCENDING )
+		self.listctrl_fontinfo = wx.ListCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,260 ), wx.LC_HRULES|wx.LC_REPORT|wx.LC_SORT_ASCENDING )
 		bSizer3.Add( self.listctrl_fontinfo, 0, wx.ALL|wx.EXPAND, 5 )
 
 
 		fgSizer1.Add( bSizer3, 1, wx.EXPAND, 5 )
 
 		bSizer5 = wx.BoxSizer( wx.VERTICAL )
+
+		bSizer9 = wx.BoxSizer( wx.HORIZONTAL )
+
+		self.Button_Save = wx.Button( self, wx.ID_ANY, u"Save", wx.DefaultPosition, wx.Size( 50,-1 ), 0 )
+		bSizer9.Add( self.Button_Save, 0, wx.ALL, 5 )
+
+		self.FilePicker_Load = wx.FilePickerCtrl( self, wx.ID_ANY, wx.EmptyString, u"Select a block file", u"*.json", wx.DefaultPosition, wx.DefaultSize, wx.FLP_DEFAULT_STYLE|wx.FLP_FILE_MUST_EXIST )
+		bSizer9.Add( self.FilePicker_Load, 0, wx.ALL, 5 )
+
+
+		bSizer5.Add( bSizer9, 0, 0, 5 )
 
 		self.button_add = wx.Button( self, wx.ID_ANY, u"Add", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer5.Add( self.button_add, 0, wx.ALL|wx.EXPAND, 5 )
@@ -91,12 +102,13 @@ class MainFrame ( wx.Frame ):
 
 		self.SetSizer( bSizer1 )
 		self.Layout()
-		bSizer1.Fit( self )
 
 		self.Centre( wx.BOTH )
 
 		# Connect Events
 		self.listctrl_fontinfo.Bind( wx.EVT_LIST_ITEM_SELECTED, self.OnListItemSelect_Cb )
+		self.Button_Save.Bind( wx.EVT_BUTTON, self.Button_Save_CB )
+		self.FilePicker_Load.Bind( wx.EVT_FILEPICKER_CHANGED, self.FilePicker_Load_CB )
 		self.button_add.Bind( wx.EVT_BUTTON, self.ButtonAdd_Cb )
 		self.button_delete.Bind( wx.EVT_BUTTON, self.ButtonDelete_Cb )
 		self.button_gen.Bind( wx.EVT_BUTTON, self.Gerenate_Cb )
@@ -107,6 +119,12 @@ class MainFrame ( wx.Frame ):
 
 	# Virtual event handlers, overide them in your derived class
 	def OnListItemSelect_Cb( self, event ):
+		event.Skip()
+
+	def Button_Save_CB( self, event ):
+		event.Skip()
+
+	def FilePicker_Load_CB( self, event ):
 		event.Skip()
 
 	def ButtonAdd_Cb( self, event ):
